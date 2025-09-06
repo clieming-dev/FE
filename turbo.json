@@ -1,4 +1,12 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
-  "tasks": {}
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "mobile:build": {
+      "cache": false,
+      "inputs": ["apps/mobile/**"]
+    }
+  }
 }

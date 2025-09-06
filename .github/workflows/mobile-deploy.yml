@@ -1,6 +1,11 @@
 # .github/workflows/mobile-deploy.yml
 name: Mobile App CI/CD
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 on:
   push:
     branches: [main]
@@ -35,16 +40,14 @@ jobs:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
 
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-
-      - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: 📦 Install dependencies
         run: pnpm install --frozen-lockfile
@@ -56,11 +59,21 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: 🔍 Debug - List mobile directory
+        working-directory: apps/mobile
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in mobile directory:"
+          ls -la
+          echo "EAS configuration:"
+          cat eas.json
+
       - name: 🚀 Build preview
         working-directory: apps/mobile
         run: npx eas-cli build --platform all --profile preview --non-interactive
 
       - name: 💬 Comment PR
+        if: success()
         uses: actions/github-script@v7
         with:
           script: |
@@ -69,6 +82,18 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '📱 Preview build completed! Check your [EAS Dashboard](https://expo.dev/accounts/ighost-p/projects/clieming) for download links.'
+            })
+
+      - name: 💬 Comment PR on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Preview build failed. Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.'
             })
 
   # 프로덕션 배포 (main 브랜치)
@@ -85,16 +110,14 @@ jobs:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
 
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-
-      - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: 📦 Install dependencies
         run: pnpm install --frozen-lockfile
@@ -106,13 +129,28 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🚀 Build production
+      - name: 🔍 Debug - Verify setup
         working-directory: apps/mobile
         run: |
-          npx eas-cli build --platform ${{ matrix.platform }} --profile production --non-interactive --auto-submit
+          echo "Current directory: $(pwd)"
+          echo "EAS CLI version:"
+          npx eas-cli --version
+          echo "Platform: ${{ matrix.platform }}"
+          echo "EAS configuration:"
+          cat eas.json
+
+      - name: 🚀 Build production
+        working-directory: apps/mobile
+        run: npx eas-cli build --platform ${{ matrix.platform }} --profile production --non-interactive --auto-submit
 
       - name: 📱 Notify success
         if: success()
         run: |
           echo "✅ ${{ matrix.platform }} build completed successfully!"
           echo "📱 Check EAS Dashboard: https://expo.dev/accounts/ighost-p/projects/clieming"
+
+      - name: 💌 Notify failure
+        if: failure()
+        run: |
+          echo "❌ ${{ matrix.platform }} build failed!"
+          echo "🔍 Check workflow logs for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
