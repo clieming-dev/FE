@@ -4,9 +4,21 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**"]
     },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "check-types": {
+      "outputs": []
+    },
     "mobile:build": {
       "cache": false,
       "inputs": ["apps/mobile/**"]
+    },
+    "web:build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**"],
+      "inputs": ["apps/web/**"]
     }
   }
 }

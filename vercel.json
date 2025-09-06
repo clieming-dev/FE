@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "buildCommand": "cd apps/web && pnpm build",
+  "devCommand": "cd apps/web && pnpm dev",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "apps/web/.next",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
