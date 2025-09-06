@@ -1,0 +1,118 @@
+# .github/workflows/mobile-deploy.yml
+name: Mobile App CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/mobile/**"]
+  pull_request:
+    branches: [main]
+    paths: ["apps/mobile/**"]
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  # 변경사항 감지
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      mobile: ${{ steps.changes.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            mobile:
+              - 'apps/mobile/**'
+
+  # 프리뷰 빌드 (PR용)
+  mobile-preview:
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🚀 Build preview
+        working-directory: apps/mobile
+        run: npx eas-cli build --platform all --profile preview --non-interactive
+
+      - name: 💬 Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📱 Preview build completed! Check your [EAS Dashboard](https://expo.dev/accounts/ighost-p/projects/clieming) for download links.'
+            })
+
+  # 프로덕션 배포 (main 브랜치)
+  mobile-production:
+    needs: changes
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: [ios, android]
+
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🚀 Build production
+        working-directory: apps/mobile
+        run: |
+          npx eas-cli build --platform ${{ matrix.platform }} --profile production --non-interactive --auto-submit
+
+      - name: 📱 Notify success
+        if: success()
+        run: |
+          echo "✅ ${{ matrix.platform }} build completed successfully!"
+          echo "📱 Check EAS Dashboard: https://expo.dev/accounts/ighost-p/projects/clieming"
