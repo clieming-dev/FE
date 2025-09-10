@@ -16,7 +16,7 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@clieming/eslint-config": "file:../../packages/eslint-config",
+    "@clieming/eslint-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

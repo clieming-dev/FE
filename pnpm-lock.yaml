@@ -46,7 +46,7 @@ importers:
         version: 0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(react@19.1.0)
     devDependencies:
       '@clieming/eslint-config':
-        specifier: file:../../packages/eslint-config
+        specifier: workspace:*
         version: link:../../packages/eslint-config
       '@types/react':
         specifier: ~19.1.0
@@ -68,8 +68,8 @@ importers:
         version: 19.1.0(react@19.1.0)
     devDependencies:
       '@clieming/eslint-config':
-        specifier: file:../../packages/eslint-config
-        version: file:packages/eslint-config(eslint@8.57.1)(prettier@3.6.2)(typescript@5.9.2)
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.12
@@ -671,13 +671,6 @@ packages:
   '@babel/types@7.28.4':
     resolution: {integrity: sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==}
     engines: {node: '>=6.9.0'}
-
-  '@clieming/eslint-config@file:packages/eslint-config':
-    resolution: {directory: packages/eslint-config, type: directory}
-    peerDependencies:
-      eslint: ^8.0.0
-      prettier: ^3.0.0
-      typescript: ^5.0.0
 
   '@emnapi/core@1.5.0':
     resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
@@ -4864,12 +4857,6 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
-
-  '@clieming/eslint-config@file:packages/eslint-config(eslint@8.57.1)(prettier@3.6.2)(typescript@5.9.2)':
-    dependencies:
-      eslint: 8.57.1
-      prettier: 3.6.2
-      typescript: 5.9.2
 
   '@emnapi/core@1.5.0':
     dependencies:
