@@ -4,13 +4,4 @@ module.exports = {
     project: "./tsconfig.json",
     tsconfigRootDir: __dirname,
   },
-  ignorePatterns: [
-    "node_modules/",
-    ".expo/",
-    "dist/",
-    "web-build/",
-    "*.config.js",
-    "*.config.ts",
-    ".eslintrc.js",
-  ],
 };
