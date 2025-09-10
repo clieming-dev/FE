@@ -6,13 +6,15 @@
     "dev": "turbo run dev",
     "check-types": "turbo run check-types",
     "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix"
+    "lint:fix": "turbo run lint:fix",
+    "format": "turbo run format"
   },
   "devDependencies": {
     "@clieming/eslint-config": "file:packages/eslint-config",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
+    "prettier": "^3.6.2",
     "turbo": "^2.5.6",
     "typescript": "5.9.2"
   },

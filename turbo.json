@@ -10,8 +10,12 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"],
+      "dependsOn": ["^build"],
       "outputs": []
+    },
+    "format": {
+      "dependsOn": ["^build"],
+      "cache": false
     }
   }
 }
