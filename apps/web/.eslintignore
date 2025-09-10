@@ -1,2 +1,13 @@
-node_modules
 dist
+node_modules
+
+.eslintrc.js
+
+next-env.d.ts
+
+.next/
+out/
+
+*.config.js
+*.config.ts
+*.config.mjs
