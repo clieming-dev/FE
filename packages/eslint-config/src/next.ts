@@ -1,6 +1,4 @@
-import type { Linter } from "eslint";
-
-const config: Linter.Config = {
+const config = {
   extends: ["./base", "next/core-web-vitals"],
   env: {
     browser: true,

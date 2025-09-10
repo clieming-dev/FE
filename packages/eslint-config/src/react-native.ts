@@ -1,6 +1,4 @@
-import type { Linter } from "eslint";
-
-const config: Linter.Config = {
+const config = {
   extends: ["./base", "plugin:react-native/all"],
   env: {
     "react-native/react-native": true,
