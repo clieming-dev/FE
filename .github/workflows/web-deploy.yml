@@ -1,0 +1,161 @@
+# .github/workflows/web-deploy.yml
+name: Web App CI/CD
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/web/**"]
+  pull_request:
+    branches: [main]
+    paths: ["apps/web/**"]
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  # 변경사항 감지
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.changes.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+
+  # 빌드 및 테스트 (PR용)
+  web-build-test:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Debug - Check web app
+        working-directory: apps/web
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in web directory:"
+          ls -la
+          echo "Package.json contents:"
+          cat package.json
+
+      - name: 🏗 Build web app
+        working-directory: apps/web
+        run: pnpm build
+
+      - name: 🧪 Type check
+        working-directory: apps/web
+        run: npx tsc --noEmit
+
+      - name: 📊 Build size analysis
+        working-directory: apps/web
+        run: |
+          if [ -d ".next" ]; then
+            echo "Build successful! .next directory contents:"
+            du -sh .next/*
+          else
+            echo "❌ Build failed - .next directory not found"
+            exit 1
+          fi
+
+      - name: 📤 Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next
+          retention-days: 1
+
+      - name: 💬 Comment PR (Build Success)
+        if: github.event_name == 'pull_request' && success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Web app build successful! Ready for deployment.'
+            })
+
+      - name: 💬 Comment PR (Build Failed)
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Web app build failed. Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.'
+            })
+
+  # Vercel 프로덕션 배포 (main 브랜치)
+  web-deploy-vercel:
+    needs: [changes, web-build-test]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next
+
+      - name: 🚀 Deploy to Vercel
+        working-directory: apps/web
+        run: |
+          npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: 📱 Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Web app deployed successfully to Vercel!"
+          echo "🌐 Check your Vercel dashboard for the deployment URL"
+
+      - name: 💌 Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Web app deployment failed!"
+          echo "🔍 Check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
