@@ -139,9 +139,17 @@ jobs:
           echo "EAS configuration:"
           cat eas.json
 
-      - name: 🚀 Build production
+      - name: 🔐 Check credentials status
         working-directory: apps/mobile
-        run: npx eas-cli build --platform ${{ matrix.platform }} --profile production --non-interactive --auto-submit
+        run: |
+          echo "Checking credentials for ${{ matrix.platform }}..."
+          npx eas-cli credentials --platform ${{ matrix.platform }} --non-interactive || echo "⚠️ Credentials not configured"
+
+      - name: 🚀 Build production (Internal Distribution)
+        working-directory: apps/mobile
+        run: |
+          echo "📦 Building ${{ matrix.platform }} for internal distribution"
+          npx eas-cli build --platform ${{ matrix.platform }} --profile production --non-interactive
 
       - name: 📱 Notify success
         if: success()

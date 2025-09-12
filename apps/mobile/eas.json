@@ -12,10 +12,27 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "distribution": "internal",
+      "autoIncrement": true,
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "store": {
+      "distribution": "store",
+      "autoIncrement": true,
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "android": {
+        "buildType": "aab"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "store": {}
   }
 }
