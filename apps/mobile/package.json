@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@clieming/eslint-config": "workspace:*",
+    "@clieming/prettier-config": "workspace:*",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   },

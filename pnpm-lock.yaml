@@ -48,6 +48,9 @@ importers:
       '@clieming/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@clieming/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/prettier-config
       '@types/react':
         specifier: ~19.1.0
         version: 19.1.12
@@ -70,6 +73,9 @@ importers:
       '@clieming/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@clieming/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/prettier-config
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.12
