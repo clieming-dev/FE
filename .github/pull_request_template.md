@@ -1,7 +1,23 @@
-## 해결하려는 문제가 무엇인가요?
+### Changelog
+
+#### 🖼️ Screenshots
+
+#### ✨ Changes
 
 -
 
-## 어떻게 해결했나요?
+#### 📝 Description
+
+-
+
+#### 💬 Remarks
+
+-
+
+#### Figma
+
+-
+
+#### Ticket
 
 -
