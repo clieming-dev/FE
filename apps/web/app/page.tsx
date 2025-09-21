@@ -1,7 +1,17 @@
+"use client";
+
+import { Splash } from "@/screens/splash";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/signin");
+  }, [router]);
+
   return (
-    <div>
-      <h1>Hello World</h1>
-    </div>
+    <Splash />
   );
 }
