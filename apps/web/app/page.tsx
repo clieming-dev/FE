@@ -11,7 +11,5 @@ export default function Home() {
     router.push("/signin");
   }, [router]);
 
-  return (
-    <Splash />
-  );
+  return <Splash />;
 }

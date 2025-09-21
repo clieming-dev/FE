@@ -1,4 +1,4 @@
-import { Logo } from '@/assets'
+import { Logo } from "@/assets";
 
 export function Splash() {
   return (
@@ -8,5 +8,5 @@ export function Splash() {
         <p>로딩중...</p>
       </div>
     </div>
-  )
+  );
 }

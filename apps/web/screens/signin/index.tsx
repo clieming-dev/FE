@@ -17,25 +17,17 @@ export function Signin() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">로그인</CardTitle>
-          <CardDescription>
-            소셜 계정으로 간편하게 로그인하세요
-          </CardDescription>
+          <CardDescription>소셜 계정으로 간편하게 로그인하세요</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
             onClick={handleKakaoLogin}
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-foreground font-medium"
-            size="lg"
-          >
+            size="lg">
             카카오 로그인
           </Button>
 
-          <Button
-            onClick={handleAppleLogin}
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
+          <Button onClick={handleAppleLogin} variant="outline" className="w-full" size="lg">
             Apple 로그인
           </Button>
 
