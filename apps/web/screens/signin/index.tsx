@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "@/shared/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/Card";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
 
 export function Signin() {
   const handleKakaoLogin = () => {
