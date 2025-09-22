@@ -1,11 +1,29 @@
 import { Logo } from "@/assets";
 
-export function Splash() {
+interface SplashProps {
+  type?: "loading" | "moveToLogin";
+  logoSize?: {
+    width?: number;
+    height?: number;
+  };
+  className?: string;
+}
+
+enum SplashText {
+  loading = "로딩 중...",
+  moveToLogin = "로그인 페이지로 이동 중...",
+}
+
+export function Splash({
+  type = "loading",
+  logoSize = { width: undefined, height: undefined },
+  className = "",
+}: SplashProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FF6B4C]">
+    <div className={`min-h-screen flex items-center justify-center bg-[#FF6B4C] ${className}`}>
       <div className="text-center text-white space-y-4">
-        <Logo />
-        <p>로딩중...</p>
+        <Logo width={logoSize.width} height={logoSize.height} />
+        <p className="text-lg">{SplashText[type]}</p>
       </div>
     </div>
   );

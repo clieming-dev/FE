@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
+import { Splash } from "@/screens/splash";
 
 export function Signin() {
   const handleKakaoLogin = () => {
@@ -10,6 +11,10 @@ export function Signin() {
   const handleAppleLogin = () => {
     alert("애플 로그인 기능은 추후 구현 예정입니다.");
   };
+
+  if (loading) {
+    return <Splash type="loading" />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -21,7 +26,7 @@ export function Signin() {
         <CardContent className="space-y-4">
           <Button
             onClick={handleKakaoLogin}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-foreground font-medium"
+            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-medium"
             size="lg">
             카카오 로그인
           </Button>
