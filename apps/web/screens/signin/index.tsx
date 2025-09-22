@@ -1,19 +1,35 @@
 "use client";
 
+import { signIn, getSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
 import { Splash } from "@/screens/splash";
 
 export function Signin() {
+  const [session, setSession] = useState<Awaited<ReturnType<typeof getSession>>>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSession().then((session) => {
+      setSession(session);
+      setLoading(false);
+    });
+  }, []);
+
   const handleKakaoLogin = () => {
-    alert("카카오 로그인 기능은 추후 구현 예정입니다.");
+    signIn("kakao");
   };
 
   const handleAppleLogin = () => {
-    alert("애플 로그인 기능은 추후 구현 예정입니다.");
+    signIn("apple");
   };
 
   if (loading) {
     return <Splash type="loading" />;
+  }
+
+  if (session) {
+    return "로그인 완료";
   }
 
   return (
