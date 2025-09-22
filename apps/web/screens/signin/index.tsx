@@ -4,10 +4,12 @@ import { signIn, getSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
 import { Splash } from "@/screens/splash";
+import { useUser } from "@/shared/hooks";
 
 export function Signin() {
   const [session, setSession] = useState<Awaited<ReturnType<typeof getSession>>>(null);
   const [loading, setLoading] = useState(true);
+  const { user, loading: userLoading, error: userError } = useUser();
 
   useEffect(() => {
     getSession().then((session) => {
@@ -29,7 +31,25 @@ export function Signin() {
   }
 
   if (session) {
-    return "로그인 완료";
+    if (userLoading) {
+      return <Splash type="loading" />;
+    }
+
+    if (userError) {
+      console.error(userError);
+    }
+
+    return (
+      <>
+        {user && (
+          <div>
+            <div className="text-2xl font-bold text-green-600">로그인 완료!</div>
+            <span className="font-medium">사용자 ID:</span>
+            <span>{user.id}</span>
+          </div>
+        )}
+      </>
+    );
   }
 
   return (
