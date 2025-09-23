@@ -39,7 +39,7 @@ function Container() {
     <WebView
       ref={webViewRef}
       style={styles.container}
-      source={{ uri: "http://localhost:3000" }}
+      source={{ uri: "http://localhost:3000" }} // TODO: 호스트 env 변수로 수정
       injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
       javaScriptEnabled={true}
     />
