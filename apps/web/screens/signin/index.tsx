@@ -1,32 +1,23 @@
 "use client";
 
-import { signIn, getSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
 import { Splash } from "@/screens/splash";
 import { useUser } from "@/shared/hooks";
 
 export function Signin() {
-  const [session, setSession] = useState<Awaited<ReturnType<typeof getSession>>>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const { user, loading: userLoading, error: userError } = useUser();
 
-  useEffect(() => {
-    getSession().then((session) => {
-      setSession(session);
-      setLoading(false);
-    });
-  }, []);
-
   const handleKakaoLogin = () => {
-    signIn("kakao");
+    signIn("kakao", { callbackUrl: "/" });
   };
 
   const handleAppleLogin = () => {
-    signIn("apple");
+    signIn("apple", { callbackUrl: "/" });
   };
 
-  if (loading) {
+  if (status === "loading") {
     return <Splash type="loading" />;
   }
 
