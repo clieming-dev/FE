@@ -1,11 +1,10 @@
-import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
+import { WebView } from "react-native-webview";
+import { StyleSheet } from "react-native";
 
 export default function App() {
-  return (
-    <View>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <WebView style={styles.container} source={{ uri: "https://www.naver.com" }} />;
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+});
