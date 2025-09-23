@@ -11,16 +11,20 @@ function Container() {
   const insets = useSafeAreaInsets();
   const webViewRef = useRef<WebView>(null);
 
-  const injectedJavaScript = `
-    window.safeAreaInsets = ${JSON.stringify(insets)};
-    window.dispatchEvent(new CustomEvent('SafeAreaInsets', { detail: window.safeAreaInsets }));
+  const injectedJavaScriptBeforeContentLoaded = `
+    const root = document.documentElement;
+    root.style.setProperty('--safe-top', '${insets.top}px');
+    root.style.setProperty('--safe-right', '${insets.right}px');
+    root.style.setProperty('--safe-bottom', '${insets.bottom}px');
+    root.style.setProperty('--safe-left', '${insets.left}px');
+
+    window.dispatchEvent(new CustomEvent('SafeAreaInsets', { detail: ${JSON.stringify(insets)} }));
     true;
   `;
 
-  const pushInsets = useCallback((i: EdgeInsets) => {
+  const pushInsets = useCallback((insets: EdgeInsets) => {
     const script = `
-      window.safeAreaInsets = ${JSON.stringify(i)};
-      window.dispatchEvent(new CustomEvent('SafeAreaInsets', { detail: window.safeAreaInsets }));
+      window.dispatchEvent(new CustomEvent('SafeAreaInsets', { detail: ${JSON.stringify(insets)} }));
       true;
     `;
 
@@ -36,7 +40,7 @@ function Container() {
       ref={webViewRef}
       style={styles.container}
       source={{ uri: "http://localhost:3000" }}
-      injectedJavaScript={injectedJavaScript}
+      injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
       javaScriptEnabled={true}
     />
   );
