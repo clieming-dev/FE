@@ -1,5 +1,5 @@
 import "./globals.css";
-import SafeAreaVars from "@/shared/SafeAreaVars";
+import { SafeArea } from "@/shared/components";
 
 export default function RootLayout({
   children,
@@ -9,7 +9,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SafeAreaVars />
+        <SafeArea />
         {children}
       </body>
     </html>

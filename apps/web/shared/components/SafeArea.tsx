@@ -1,3 +1,5 @@
+"use client";
+
 import { useLayoutEffect } from "react";
 
 type EdgeInsets = {
@@ -23,7 +25,7 @@ function applyCssVariables(insets: EdgeInsets) {
   root.style.setProperty("--safe-left", `${insets.left}px`);
 }
 
-export default function SafeAreaVars() {
+export function SafeArea() {
   useLayoutEffect(() => {
     if (!window) return;
 
