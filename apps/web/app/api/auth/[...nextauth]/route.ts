@@ -10,7 +10,6 @@ const handler = NextAuth({
       clientId: process.env.KAKAO_CLIENT_ID || "",
       clientSecret: process.env.KAKAO_CLIENT_SECRET || "",
     }),
-    // Apple 로그인: localhost 제한으로 인해 배포 환경에서만 테스트 가능
     AppleProvider({
       clientId: process.env.APPLE_CLIENT_ID || "",
       clientSecret: validateAppleConfig() ? generateAppleClientSecret() : "",
@@ -54,20 +53,14 @@ const handler = NextAuth({
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      console.log("Redirect callback:", { url, baseUrl });
-
-      // 로그인 성공 후 메인 홈으로 리다이렉트
       if (url === baseUrl || url === `${baseUrl}/` || url === `${baseUrl}/signin`) {
-        console.log("Redirecting to home:", baseUrl);
         return baseUrl;
       }
 
-      // 상대 URL인 경우 baseUrl과 결합
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
       }
 
-      // 절대 URL이면서 같은 도메인인 경우
       if (url.startsWith(baseUrl)) {
         return url;
       }
@@ -117,19 +110,21 @@ const handler = NextAuth({
     },
     async jwt({ token, account }) {
       if (account) {
-        token.accessToken = account.access_token;
-        token.backendJWT = account.backend_jwt;
-        token.userId = account.user_id;
+        token.accessToken = account.access_token as string;
+        token.backendJWT = account.backend_jwt as string;
+        token.userId = account.user_id as string;
       }
       return token;
     },
     async session({ session, token }) {
-      // @ts-expect-error accessToken
       session.accessToken = token.accessToken;
-      // @ts-expect-error backendJWT
       session.backendJWT = token.backendJWT;
-      // @ts-expect-error userId
-      session.userId = token.userId;
+      if (token.userId) {
+        session.user = {
+          ...session.user,
+          id: token.userId,
+        };
+      }
       return session;
     },
   },
