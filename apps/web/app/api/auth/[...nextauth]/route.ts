@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import KakaoProvider from "next-auth/providers/kakao";
 import AppleProvider from "next-auth/providers/apple";
-// import { apiClient, UserInsertDto } from "@/shared/api";
+import { apiClient, UserInsertDto } from "@/shared/api";
 import { generateAppleClientSecret, validateAppleConfig } from "@/shared/lib";
 
 const handler = NextAuth({
@@ -69,7 +69,6 @@ const handler = NextAuth({
     },
     async signIn({ user, account }) {
       try {
-        // 개발 단계: 백엔드 연동 우회하고 소셜 로그인만 테스트
         console.log("Social login successful:", {
           provider: account?.provider,
           userId: user.id,
@@ -77,8 +76,6 @@ const handler = NextAuth({
           name: user.name,
         });
 
-        // TODO: 백엔드 API가 준비되면 아래 코드 활성화
-        /*
         if (account && user) {
           const userData: UserInsertDto = {
             userId: user.id || user.email || `social_${account.provider}_${Date.now()}`,
@@ -92,15 +89,61 @@ const handler = NextAuth({
             mainPicId: 0,
           };
 
-          const userId = await apiClient.createUser(userData);
-          const authResponse = await apiClient.getAuthToken(userData.userId);
+          try {
+            const authResponse = await apiClient.getAuthToken(userData.userId);
+            console.log("Auth token received:", authResponse);
 
-          if (account) {
-            account.backend_jwt = authResponse.access_token;
-            account.user_id = userId.toString();
+            let userId: number;
+            let isNewUser = false;
+
+            try {
+              const existingUser = await apiClient.getUserByUserId(
+                userData.userId,
+                authResponse.access_token,
+              );
+
+              if (existingUser) {
+                userId = existingUser.id;
+                console.log("✅ 기존 사용자 자동 로그인 성공:", {
+                  userId: existingUser.id,
+                  userName: existingUser.userName,
+                  email: existingUser.email,
+                });
+              } else {
+                console.log("🆕 새로운 사용자 생성 중...");
+                try {
+                  userId = await apiClient.createUser(userData);
+                  isNewUser = true;
+                  console.log("✅ 새 사용자 생성 성공:", {
+                    userId,
+                    userName: userData.userName,
+                    email: userData.email,
+                  });
+                } catch (createError) {
+                  console.error("❌ 사용자 생성 실패:", createError);
+                  throw new Error(
+                    `새 사용자 생성에 실패했습니다. 백엔드 서버를 확인해주세요: ${createError instanceof Error ? createError.message : String(createError)}`,
+                  );
+                }
+              }
+            } catch (userCheckError) {
+              console.error("❌ 사용자 확인/생성 과정에서 오류 발생:", userCheckError);
+              throw new Error(
+                `사용자 인증 처리 중 오류가 발생했습니다: ${userCheckError instanceof Error ? userCheckError.message : String(userCheckError)}`,
+              );
+            }
+
+            if (account) {
+              account.backend_jwt = authResponse.access_token;
+              account.user_id = userId.toString();
+            }
+          } catch (apiError) {
+            console.error("Backend API error:", apiError);
+            throw new Error(
+              `백엔드 연동 실패: ${apiError instanceof Error ? apiError.message : String(apiError)}`,
+            );
           }
         }
-        */
 
         return true;
       } catch (error) {

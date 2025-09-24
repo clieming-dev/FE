@@ -17,6 +17,7 @@ export default function Home() {
     }
   }, [session, status, router]);
 
+  // TODO: 백엔드에 사용자 삭제 API 추가 요청 필요
   const handleDeleteAccount = async () => {
     const confirmed = confirm(
       "정말로 회원 탈퇴하시겠습니까?\n\n" +
