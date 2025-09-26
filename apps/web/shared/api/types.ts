@@ -24,7 +24,13 @@ export interface UserInsertDto {
 }
 
 export interface AuthTokenResponse {
-  access_token: string;
-  expires_in: string;
-  token_type: string;
+  status: number;
+  data: {
+    token_type: string;
+    expires_in: string;
+    access_token: string;
+  };
+  error: null | string;
+  path: string;
+  timestamp: string;
 }

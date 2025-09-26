@@ -57,7 +57,22 @@ export class ApiClient {
       );
     }
 
-    return response.json();
+    const data = await response.json();
+
+    // 새로운 API 응답 구조 처리: status 필드로 성공/실패 판단
+    if (data.status && data.status !== 200) {
+      console.error("API Business Logic Error:", {
+        status: data.status,
+        error: data.error,
+        path: data.path,
+        timestamp: data.timestamp,
+      });
+      throw new Error(
+        `API business logic failed: ${data.status} - ${data.error || "Unknown error"}`,
+      );
+    }
+
+    return data;
   }
 
   // 사용자 관련 API
@@ -76,19 +91,22 @@ export class ApiClient {
   }
 
   async getUserByUserId(userId: string, token?: string): Promise<UserEntity | null> {
-    // userId로 사용자 조회 (1~100번 순차 조회 - 임시 구현)
-    // TODO: 백엔드에 userId로 직접 조회하는 API 추가 요청 필요
-    for (let i = 1; i <= 100; i++) {
-      try {
-        const user = await this.getUserById(i, token);
-        if (user.userId === userId) {
-          return user;
-        }
-      } catch (error) {
-        continue;
-      }
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
-    return null;
+
+    try {
+      return await this.request<UserEntity>(`/api/v1/user/name/${userId}`, {
+        headers,
+      });
+    } catch (error) {
+      console.error("Failed to get user by userId:", error);
+      return null;
+    }
   }
 
   async createUser(userData: UserInsertDto): Promise<number> {
@@ -98,7 +116,7 @@ export class ApiClient {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
-        Authorization: `Bearer ${authResponse.access_token}`,
+        Authorization: `Bearer ${authResponse.data.access_token}`,
       },
     });
   }
