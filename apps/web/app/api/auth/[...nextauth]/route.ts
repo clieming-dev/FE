@@ -69,16 +69,9 @@ const handler = NextAuth({
     },
     async signIn({ user, account }) {
       try {
-        console.log("Social login successful:", {
-          provider: account?.provider,
-          userId: user.id,
-          email: user.email,
-          name: user.name,
-        });
-
         if (account && user) {
           const userData: UserInsertDto = {
-            userId: user.id || user.email || `social_${account.provider}_${Date.now()}`,
+            userId: user.id,
             userName: user.name || user.email || "Unknown User",
             email: user.email || "",
             password: "",
@@ -91,63 +84,49 @@ const handler = NextAuth({
 
           try {
             const authResponse = await apiClient.getAuthToken(userData.userId);
-            console.log("Auth token received:", authResponse);
 
             let userId: number;
-            let isNewUser = false;
 
             try {
+              const originalUserId = user.id;
               const existingUser = await apiClient.getUserByUserId(
-                userData.userId,
-                authResponse.access_token,
+                originalUserId,
+                authResponse.data.access_token,
               );
 
-              if (existingUser) {
+              if (existingUser && existingUser.id) {
                 userId = existingUser.id;
-                console.log("✅ 기존 사용자 자동 로그인 성공:", {
-                  userId: existingUser.id,
-                  userName: existingUser.userName,
-                  email: existingUser.email,
-                });
               } else {
-                console.log("🆕 새로운 사용자 생성 중...");
                 try {
                   userId = await apiClient.createUser(userData);
-                  isNewUser = true;
-                  console.log("✅ 새 사용자 생성 성공:", {
-                    userId,
-                    userName: userData.userName,
-                    email: userData.email,
-                  });
                 } catch (createError) {
-                  console.error("❌ 사용자 생성 실패:", createError);
                   throw new Error(
-                    `새 사용자 생성에 실패했습니다. 백엔드 서버를 확인해주세요: ${createError instanceof Error ? createError.message : String(createError)}`,
+                    `❌ 새 사용자 생성 실패: ${createError instanceof Error ? createError.message : String(createError)}`,
                   );
                 }
               }
             } catch (userCheckError) {
-              console.error("❌ 사용자 확인/생성 과정에서 오류 발생:", userCheckError);
               throw new Error(
-                `사용자 인증 처리 중 오류가 발생했습니다: ${userCheckError instanceof Error ? userCheckError.message : String(userCheckError)}`,
+                `❌ 사용자 인증 처리 중 오류 발생: ${userCheckError instanceof Error ? userCheckError.message : String(userCheckError)}`,
               );
             }
 
-            if (account) {
-              account.backend_jwt = authResponse.access_token;
+            if (account && userId) {
+              account.backend_jwt = authResponse.data.access_token;
               account.user_id = userId.toString();
+            } else {
+              throw new Error("❌ 사용자 ID 설정되지 않음");
             }
           } catch (apiError) {
-            console.error("Backend API error:", apiError);
             throw new Error(
-              `백엔드 연동 실패: ${apiError instanceof Error ? apiError.message : String(apiError)}`,
+              `❌ 백엔드 연동 실패: ${apiError instanceof Error ? apiError.message : String(apiError)}`,
             );
           }
         }
 
         return true;
       } catch (error) {
-        console.error("Social login error:", error);
+        // console.error("Social login error:", error);
         return false;
       }
     },

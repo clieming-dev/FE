@@ -3,6 +3,7 @@ import { UserEntity, UserInsertDto, AuthTokenResponse } from "./types";
 
 export class ApiClient {
   private baseURL: string;
+  private callCounts: Record<string, number> = {};
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -22,13 +23,9 @@ export class ApiClient {
     const headers = await this.getAuthHeaders();
     const url = `${this.baseURL}${endpoint}`;
 
-    console.log("API Request Debug:", {
-      url,
-      method: options.method || "GET",
-      headers,
-      baseURL: this.baseURL,
-      endpoint,
-    });
+    const method = options.method || "GET";
+    const key = `${method} ${endpoint}`;
+    this.callCounts[key] = (this.callCounts[key] || 0) + 1;
 
     const response = await fetch(url, {
       ...options,
@@ -38,20 +35,8 @@ export class ApiClient {
       },
     });
 
-    console.log("API Response Debug:", {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.url,
-    });
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("API Error Details:", {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-        errorBody: errorText,
-      });
       throw new Error(
         `API request failed: ${response.status} ${response.statusText} - ${errorText}`,
       );
@@ -59,23 +44,15 @@ export class ApiClient {
 
     const data = await response.json();
 
-    // 새로운 API 응답 구조 처리: status 필드로 성공/실패 판단
     if (data.status && data.status !== 200) {
-      console.error("API Business Logic Error:", {
-        status: data.status,
-        error: data.error,
-        path: data.path,
-        timestamp: data.timestamp,
-      });
       throw new Error(
-        `API business logic failed: ${data.status} - ${data.error || "Unknown error"}`,
+        `❌ API 비즈니스 로직 실패: ${data.status} - ${data.error || "Unknown error"}`,
       );
     }
 
     return data;
   }
 
-  // 사용자 관련 API
   async getUserById(id: number, token?: string): Promise<UserEntity> {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -100,11 +77,16 @@ export class ApiClient {
     }
 
     try {
-      return await this.request<UserEntity>(`/api/v1/user/name/${userId}`, {
+      const response = await this.request<any>(`/api/v1/user/name/${userId}`, {
         headers,
       });
+
+      if (response.status === 200 && response.data) {
+        return response.data;
+      } else {
+        return null;
+      }
     } catch (error) {
-      console.error("Failed to get user by userId:", error);
       return null;
     }
   }
@@ -112,16 +94,21 @@ export class ApiClient {
   async createUser(userData: UserInsertDto): Promise<number> {
     const authResponse = await this.getAuthToken(userData.userId);
 
-    return this.request<number>("/api/v1/user/insert", {
+    const response = await this.request<any>("/api/v1/user/insert", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
         Authorization: `Bearer ${authResponse.data.access_token}`,
       },
     });
+
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      throw new Error(`사용자 생성 실패: ${response.error || "Unknown error"}`);
+    }
   }
 
-  // 인증 관련 API
   async getAuthToken(sub: string = "guest"): Promise<AuthTokenResponse> {
     return this.request<AuthTokenResponse>(`/auth/token?sub=${sub}`, {
       method: "POST",
