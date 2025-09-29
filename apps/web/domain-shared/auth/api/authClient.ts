@@ -1,7 +1,7 @@
 import { getSession } from "next-auth/react";
 import { UserEntity, UserInsertDto, AuthTokenResponse } from "./types";
 
-export class ApiClient {
+export class AuthClient {
   private baseURL: string;
   private callCounts: Record<string, number> = {};
 
@@ -77,9 +77,12 @@ export class ApiClient {
     }
 
     try {
-      const response = await this.request<any>(`/api/v1/user/name/${userId}`, {
-        headers,
-      });
+      const response = await this.request<{ status: number; data: UserEntity | null }>(
+        `/api/v1/user/name/${userId}`,
+        {
+          headers,
+        },
+      );
 
       if (response.status === 200 && response.data) {
         return response.data;
@@ -92,13 +95,16 @@ export class ApiClient {
   }
 
   async createUser(userData: UserInsertDto, token?: string): Promise<number> {
-    const response = await this.request<any>("/api/v1/user/insert", {
-      method: "POST",
-      body: JSON.stringify(userData),
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await this.request<{ status: number; data: number; error?: string }>(
+      "/api/v1/user/insert",
+      {
+        method: "POST",
+        body: JSON.stringify(userData),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     if (response.status === 200 && response.data) {
       return response.data;
@@ -114,4 +120,4 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient();
+export const authClient = new AuthClient();

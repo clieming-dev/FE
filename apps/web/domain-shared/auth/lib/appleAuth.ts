@@ -30,7 +30,7 @@ export function generateAppleClientSecret(): string {
     const clientSecret = jwt.sign(payload, privateKey, options);
     return clientSecret;
   } catch (error) {
-    console.error("Apple Client Secret 생성 실패:", error);
+    // Apple Client Secret 생성 실패
     throw new Error("Apple Client Secret 생성에 실패했습니다.");
   }
 }

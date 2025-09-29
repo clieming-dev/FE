@@ -1,5 +1,5 @@
 import "./globals.css";
-import { AuthProvider } from "@/shared/providers";
+import { AuthProvider } from "@/app/providers/AuthProvider";
 
 export default function RootLayout({
   children,

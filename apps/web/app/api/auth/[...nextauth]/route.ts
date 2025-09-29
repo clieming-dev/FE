@@ -1,8 +1,12 @@
 import NextAuth from "next-auth";
 import KakaoProvider from "next-auth/providers/kakao";
 import AppleProvider from "next-auth/providers/apple";
-import { apiClient, UserInsertDto } from "@/shared/api";
-import { generateAppleClientSecret, validateAppleConfig } from "@/shared/lib";
+import {
+  authClient,
+  UserInsertDto,
+  generateAppleClientSecret,
+  validateAppleConfig,
+} from "@/domain-shared/auth";
 
 const handler = NextAuth({
   providers: [
@@ -83,13 +87,13 @@ const handler = NextAuth({
           };
 
           try {
-            const authResponse = await apiClient.getAuthToken(userData.userId);
+            const authResponse = await authClient.getAuthToken(userData.userId);
 
             let userId: number;
 
             try {
               const originalUserId = user.id;
-              const existingUser = await apiClient.getUserByUserId(
+              const existingUser = await authClient.getUserByUserId(
                 originalUserId,
                 authResponse.data.access_token,
               );
@@ -98,7 +102,7 @@ const handler = NextAuth({
                 userId = existingUser.id;
               } else {
                 try {
-                  userId = await apiClient.createUser(userData, authResponse.data.access_token);
+                  userId = await authClient.createUser(userData, authResponse.data.access_token);
                 } catch (createError) {
                   throw new Error(
                     `❌ 새 사용자 생성 실패: ${createError instanceof Error ? createError.message : String(createError)}`,
