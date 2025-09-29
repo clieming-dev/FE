@@ -1,19 +1,6 @@
-export interface UserEntity {
-  id: number;
-  userId: string;
-  userName: string;
-  email: string;
-  password: string;
-  profileImagePath: string;
-  mbti: string;
-  gender: string;
-  birth: string;
-  mainPicId: number;
-}
-
 export interface UserInsertDto {
   userId: string;
-  userName: string;
+  name: string;
   email: string;
   password: string;
   profileImagePath: string;
@@ -23,12 +10,15 @@ export interface UserInsertDto {
   mainPicId: number;
 }
 
+export interface UserEntity extends UserInsertDto {
+  id: number;
+}
 export interface AuthTokenResponse {
   status: number;
   data: {
-    token_type: string;
-    expires_in: string;
-    access_token: string;
+    accessToken: string;
+    tokenType: string;
+    expiresIn: number;
   };
   error: null | string;
   path: string;

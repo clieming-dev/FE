@@ -76,7 +76,7 @@ const handler = NextAuth({
         if (account && user) {
           const userData: UserInsertDto = {
             userId: user.id,
-            userName: user.name || user.email || "Unknown User",
+            name: user.name || user.email || "Unknown User",
             email: user.email || "",
             password: "",
             profileImagePath: user.image || "",
@@ -95,14 +95,14 @@ const handler = NextAuth({
               const originalUserId = user.id;
               const existingUser = await authClient.getUserByUserId(
                 originalUserId,
-                authResponse.data.access_token,
+                authResponse.data.accessToken,
               );
 
               if (existingUser && existingUser.id) {
                 userId = existingUser.id;
               } else {
                 try {
-                  userId = await authClient.createUser(userData, authResponse.data.access_token);
+                  userId = await authClient.createUser(userData, authResponse.data.accessToken);
                 } catch (createError) {
                   throw new Error(
                     `❌ 새 사용자 생성 실패: ${createError instanceof Error ? createError.message : String(createError)}`,
@@ -116,7 +116,7 @@ const handler = NextAuth({
             }
 
             if (account && userId) {
-              account.backend_jwt = authResponse.data.access_token;
+              account.backend_jwt = authResponse.data.accessToken;
               account.user_id = userId.toString();
             } else {
               throw new Error("❌ 사용자 ID 설정되지 않음");
