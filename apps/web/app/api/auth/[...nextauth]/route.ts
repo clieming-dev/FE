@@ -98,7 +98,7 @@ const handler = NextAuth({
                 userId = existingUser.id;
               } else {
                 try {
-                  userId = await apiClient.createUser(userData);
+                  userId = await apiClient.createUser(userData, authResponse.data.access_token);
                 } catch (createError) {
                   throw new Error(
                     `❌ 새 사용자 생성 실패: ${createError instanceof Error ? createError.message : String(createError)}`,

@@ -91,14 +91,12 @@ export class ApiClient {
     }
   }
 
-  async createUser(userData: UserInsertDto): Promise<number> {
-    const authResponse = await this.getAuthToken(userData.userId);
-
+  async createUser(userData: UserInsertDto, token?: string): Promise<number> {
     const response = await this.request<any>("/api/v1/user/insert", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
-        Authorization: `Bearer ${authResponse.data.access_token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 

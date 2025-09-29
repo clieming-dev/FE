@@ -61,6 +61,10 @@ export default function Home() {
               <span>{session.user?.name || "정보 없음"}</span>
             </div>
             <div className="flex justify-between">
+              <span className="font-medium">회원 ID:</span>
+              <span>{session.user?.id || "정보 없음"}</span>
+            </div>
+            <div className="flex justify-between">
               <span className="font-medium">이메일:</span>
               <span>{session.user?.email || "정보 없음"}</span>
             </div>
