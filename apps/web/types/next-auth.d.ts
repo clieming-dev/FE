@@ -23,3 +23,10 @@ declare module "next-auth/jwt" {
     expiresAt?: number;
   }
 }
+
+declare module "next-auth" {
+  interface Account {
+    backend_jwt?: string;
+    user_id?: string;
+  }
+}

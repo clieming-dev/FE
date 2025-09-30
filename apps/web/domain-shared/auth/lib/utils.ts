@@ -1,4 +1,5 @@
 import { AuthClient } from "../api/authClient";
+import type { JWT } from "next-auth/jwt";
 
 export const getOrRefreshToken = async (
   authClient: AuthClient,
@@ -28,7 +29,7 @@ export const getOrRefreshToken = async (
   }
 };
 
-export const saveTokenToNextAuth = (token: any, accessToken: string, expiresIn: number) => {
+export const saveTokenToNextAuth = (token: JWT, accessToken: string, expiresIn: number) => {
   token.backendJWT = accessToken;
   token.expiresAt = Date.now() + expiresIn * 1000;
 };
