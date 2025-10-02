@@ -22,6 +22,21 @@ const handler = NextAuth({
   pages: {
     signIn: "/signin",
   },
+  debug: process.env.NODE_ENV !== "production",
+  logger: {
+    error(code, metadata) {
+      // eslint-disable-next-line no-console
+      console.error("NextAuth ERROR >>", code, metadata);
+    },
+    warn: (code) => {
+      // eslint-disable-next-line no-console
+      console.warn("NextAuth WARN >>", code);
+    },
+    debug: (message) => {
+      // eslint-disable-next-line no-console
+      console.log("NextAuth DEBUG >>", message);
+    },
+  },
   callbacks: {
     signIn: signInCallback,
     jwt: jwtCallback,
