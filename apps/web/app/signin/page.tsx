@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { Signin } from "@/domains/auth/signin";
 
 export default function SigninPage() {
-  return <Signin />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Signin />
+    </Suspense>
+  );
 }

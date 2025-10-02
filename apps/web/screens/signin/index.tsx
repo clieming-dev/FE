@@ -1,15 +1,21 @@
 "use client";
 
-import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui";
+import { AuthApi } from "./api/authApi";
+import { useAuthStore } from "./model/useAuthStore";
+import { ErrorMessage } from "./ui/ErrorMessage";
 
 export function Signin() {
-  const handleKakaoLogin = () => {
-    alert("카카오 로그인 기능은 추후 구현 예정입니다.");
+  const { loginError, clearError } = useAuthStore();
+
+  const handleKakaoLogin = async () => {
+    clearError();
+    await AuthApi.kakaoLogin();
   };
 
-  const handleAppleLogin = () => {
-    alert("애플 로그인 기능은 추후 구현 예정입니다.");
+  const handleAppleLogin = async () => {
+    clearError();
+    await AuthApi.appleLogin();
   };
 
   return (
@@ -20,9 +26,11 @@ export function Signin() {
           <CardDescription>소셜 계정으로 간편하게 로그인하세요</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {loginError && <ErrorMessage error={loginError} />}
+
           <Button
             onClick={handleKakaoLogin}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-foreground font-medium"
+            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-medium"
             size="lg">
             카카오 로그인
           </Button>
