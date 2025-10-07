@@ -8,10 +8,13 @@
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
+    "api:types": "openapi-typescript $OPENAPI_SCHEMA_URL -o shared/api/types/index.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
     "next": "15.5.2",
+    "openapi-fetch": "^0.14.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -19,9 +22,11 @@
     "@clieming/eslint-config": "workspace:*",
     "@clieming/prettier-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "openapi-typescript": "^7.9.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
